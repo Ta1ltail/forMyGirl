@@ -173,15 +173,20 @@ updateCountdown();
 
 setInterval(updateCountdown, 1000);
 
-document.addEventListener('DOMContentLoaded', () => {
-    function startMusic() {
-        audio.play().then(() => {
-            playing = true;
-            btnMusic.textContent = 'Pause music ♪';
-        }).catch(err => {
-            console.log('Autoplay blocked:', err);
-        });
-        document.removeEventListener('click', startMusic);
-    }
-    document.addEventListener('click', startMusic);
-});
+function startMusic() {
+    audio.play().then(() => {
+        playing = true;
+        btnMusic.textContent = 'Pause music ♪';
+        console.log('Music started!');
+    }).catch(err => {
+        console.log('Autoplay blocked:', err);
+    });
+
+    // Remove listeners so it doesn't run twice
+    document.removeEventListener('click', startMusic);
+    document.removeEventListener('touchstart', startMusic);
+}
+
+// Attach listeners immediately so we catch the first tap
+document.addEventListener('click', startMusic, { once: true });
+document.addEventListener('touchstart', startMusic, { once: true });
