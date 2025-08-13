@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>For You ❤️</title>
+  <meta name="description" content="A tiny surprise website to celebrate someone special." />
+
+  <!-- ===== HOW TO CUSTOMIZE =====
+    1) Change the CONFIG section in <script> near the top.
+    2) Replace image URLs with your photos (local files or hosted links).
+    3) Optional: drop an MP3 file next to this HTML and name it as in CONFIG.music.src.
+    4) Upload anywhere (Netlify, Vercel, GitHub Pages) or open locally to preview.
+  ================================= -->
+
+  <!-- Optional Google Fonts (works without internet using fallbacks) -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&family=Great+Vibes&display=swap" rel="stylesheet" />
+
+  <style>
+    :root{
+      --bg:#0f1226;        /* page background */
+      --bg-2:#12163a;      /* section background */
+      --text:#eef1ff;      /* main text */
+      --muted:#b9c1ff;     /* secondary text */
+      --accent:#ff4d8d;    /* pink accent */
+      --accent-2:#6be3ff;  /* cyan accent */
+      --card:#191d46;      /* card surface */
+      --shadow:0 10px 30px rgba(0,0,0,.35);
+      --radius: twentypx; /* fun easter egg, overridden below */
+    }
+    /* real radius value */
+    :root{ --radius: 22px; }
+
+    * { box-sizing:border-box }
+    html, body { height:100%; }
+    body{
+      margin:0;
+      font-family: "Poppins", system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      background: radial-gradient(1200px 900px at 20% -10%, #1a1f50 0%, rgba(16,20,40,0) 60%),
+                  radial-gradient(1000px 900px at 120% 20%, #20286a 0%, rgba(16,20,40,0) 60%),
+                  var(--bg);
+      color:var(--text);
+      line-height:1.6;
+      overflow-x:hidden;
+    }
+    a{ color:var(--accent); text-decoration:none }
+    img{ max-width:100%; display:block }
+
+    /* Floating hearts background */
+    .hearts{ position:fixed; inset:0; pointer-events:none; z-index:-1; overflow:hidden; }
+    .hearts span{
+      position:absolute; bottom:-60px; left:var(--x,50%);
+      width:14px; height:14px; background:var(--accent); transform:rotate(45deg);
+      animation: floatUp linear var(--t,8s) infinite;
+      opacity:.28; filter:blur(0.2px);
+    }
+    .hearts span::before, .hearts span::after{
+      content:""; position:absolute; width:14px; height:14px; background:inherit; border-radius:50%;
+    }
+    .hearts span::before{ left:-7px; }
+    .hearts span::after{ top:-7px; }
+    @keyframes floatUp{
+      0%{ transform:translateY(0) rotate(45deg) scale(.7); opacity:.0 }
+      10%{ opacity:.35 }
+      90%{ opacity:.35 }
+      100%{ transform:translateY(-120vh) rotate(45deg) scale(1.1); opacity:0 }
+    }
+
+    /* Shell */
+    .container{ width:min(1100px, 92vw); margin-inline:auto; }
+
+    /* Hero */
+    .hero{
+      padding: clamp(48px, 6vw, 76px) 0 24px;
+      display:grid; gap:28px; align-items:center;
+      grid-template-columns: 1.1fr .9fr;
+    }
+    @media (max-width: 880px){ .hero{ grid-template-columns:1fr; text-align:center; } }
+
+    .tag{ display:inline-flex; gap:8px; align-items:center; padding:8px 12px; border-radius:999px; background:rgba(255,255,255,.06); color:var(--muted); box-shadow:var(--shadow); }
+    .tag .dot{ width:8px; height:8px; border-radius:999px; background:var(--accent); box-shadow:0 0 0 3px rgba(255,77,141,.2); }
+
+    .title{ font-size: clamp(40px, 6vw, 64px); line-height:1.05; margin:10px 0; font-weight:800; letter-spacing:-.02em; }
+    .title .script{ font-family:"Great Vibes", cursive; font-weight:400; font-size:1.05em; color:var(--accent); }
+    .lead{ color:var(--muted); font-size:clamp(16px, 2.2vw, 18px); }
+
+    .heroActions{ display:flex; gap:14px; margin-top:18px; flex-wrap:wrap; justify-content:flex-start; }
+    @media (max-width: 880px){ .heroActions{ justify-content:center; } }
+    .btn{
+      appearance:none; border:0; border-radius:16px; padding:14px 18px; cursor:pointer; font-weight:700;
+      box-shadow:var(--shadow); transform:translateY(0); transition:transform .15s ease, filter .2s ease, opacity .2s;
+    }
+    .btn:active{ transform:translateY(1px) }
+    .btn-primary{ background:linear-gradient(135deg, var(--accent) 0%, #ff7aa9 100%); color:white; }
+    .btn-ghost{ background:rgba(255,255,255,.06); color:var(--text); }
+
+    .heroCard{
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:var(--radius); padding:20px; box-shadow:var(--shadow);
+    }
+    .pfp{
+      width:min(360px, 76%); aspect-ratio:1/1; margin:12px auto 0; border-radius:24px; overflow:hidden; position:relative; box-shadow:var(--shadow);
+    }
+    .pfp img{ width:100%; height:100%; object-fit:cover; }
+    .pfp .glow{ position:absolute; inset:0; box-shadow:inset 0 0 0 2px rgba(255,255,255,.12); background:radial-gradient(circle at 30% 0%, rgba(255,255,255,.2), transparent 38%); mix-blend:screen; }
+
+    /* Sections */
+    section{ padding: clamp(38px, 6vw, 70px) 0; }
+    .sectionTitle{ font-size: clamp(28px, 4vw, 40px); margin:0 0 18px; }
+    .sectionLead{ color:var(--muted); margin-top:-6px; }
+
+    /* Cards grid */
+    .grid{ display:grid; gap:18px; grid-template-columns: repeat(12, 1fr); }
+    .col-4{ grid-column: span 4; }
+    .col-6{ grid-column: span 6; }
+    .col-8{ grid-column: span 8; }
+    .col-12{ grid-column: span 12; }
+    @media (max-width: 960px){ .col-6, .col-8, .col-4{ grid-column: span 12; } }
+
+    .card{ background:var(--card); border-radius:var(--radius); padding:18px; border:1px solid rgba(255,255,255,.08); box-shadow:var(--shadow) }
+    .card h3{ margin:4px 0 8px; }
+    .muted{ color:var(--muted) }
+
+    /* Gallery */
+    .masonry{ columns: 1; column-gap:18px; }
+    @media (min-width: 600px){ .masonry{ columns: 2 } }
+    @media (min-width: 980px){ .masonry{ columns: 3 } }
+    .masonry figure{ break-inside: avoid; margin:0 0 18px; position:relative; overflow:hidden; border-radius:18px; box-shadow:var(--shadow); }
+    .masonry figcaption{ position:absolute; inset:auto 0 0 0; padding:10px 12px; background:linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.65)); color:#fff; font-size:14px; }
+    .masonry img{ width:100%; height:auto; object-fit:cover; transition: transform .25s ease; }
+    .masonry figure:hover img{ transform:scale(1.03) }
+
+    /* Timeline */
+    .timeline{ position:relative; margin:6px 0 0; }
+    .timeline::before{ content:""; position:absolute; left:10px; top:0; bottom:0; width:2px; background:linear-gradient(180deg, #ffffff22, #ffffff00); }
+    .moment{ position:relative; padding-left:38px; margin:18px 0; }
+    .moment::before{ content:""; position:absolute; left:1px; top:8px; width:18px; height:18px; border-radius:50%; background:linear-gradient(135deg,var(--accent),#ffa1c4); box-shadow:0 0 0 3px #ff4d8d22; }
+
+    /* Love list */
+    .loveList{ list-style:none; padding:0; margin:0; display:grid; gap:12px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+    .loveList li{ background:rgba(255,255,255,.06); padding:12px 14px; border-radius:14px; }
+
+    /* Footer */
+    footer{ text-align:center; color:var(--muted); padding:48px 0 80px; }
+
+    /* Confetti */
+    .confetti{ position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:20; }
+    .confetti i{ position:absolute; width:10px; height:16px; animation: conf 1400ms ease-out forwards; opacity:0.9; }
+    @keyframes conf{ 0%{ transform: translateY(-10vh) rotate(0deg) } 100%{ transform: translateY(110vh) rotate(720deg) } }
+
+    /* Modal */
+    .modal{ position:fixed; inset:0; display:none; place-items:center; background:rgba(0,0,0,.55); z-index:30; padding:20px; }
+    .modal.open{ display:grid }
+    .modal .box{ background:var(--card); border:1px solid rgba(255,255,255,.1); border-radius:20px; max-width:720px; width:100%; padding:22px; box-shadow:var(--shadow); }
+    .modal .box h3{ margin-top:0 }
+
+    /* Small helper */
+    .sr-only{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+    
+  </style>
+</head>
+<body>
+  <div class="hearts" aria-hidden="true"></div>
+
+  <main class="container">
+    <section class="hero">
+      <div>
+        <div class="tag"><span class="dot"></span><span id="tagline">To my favorite human</span></div>
+        <h1 class="title">Hi <span id="herName" class="script">Love</span>  Mwa mwa mwa for you 💘</h1>
+        <p class="lead" id="leadText">I made you a tiny website because you deserve your own corner of the internet. Scroll down to see some of my favorite moments with you (and a little surprise). </p>
+        <div class="heroActions">
+          <button class="btn btn-primary" id="btnSurprise">Open the surprise</button>
+          <button id="btnMusic" class="btn btn-ghost">Play music ♪</button>
+        </div>
+      </div>
+
+      <div class="heroCard">
+        <div class="pfp">
+          <img id="heroImg" src="images/mahal.jpg" alt="Her photo" />
+          <div class="glow" aria-hidden="true"></div>
+        </div>
+        <p class="muted" style="text-align:center; margin:10px 0 4px">"You are my today and all of my tomorrows."</p>
+      </div>
+    </section>
+
+    <!-- Gallery -->
+    <section id="gallery">
+      <h2 class="sectionTitle">A few of my favorite photo of you</h2>
+      <p class="sectionLead"></p>
+      <div class="masonry" id="galleryGrid">
+        <!-- Each figure is one photo -->
+        <figure>
+          <img src="images/526982710_1061974726135682_6828209082612659011_n.jpg" alt="Moment 1" />
+          <figcaption></figcaption>
+        </figure>
+        <figure>
+          <img src="images/527806679_1297551501817323_4140887724333013788_n.jpg" alt="Moment 2" />
+          <figcaption>Coffee dates</figcaption>
+        </figure>
+        <figure>
+          <img src="images/528751367_1655214335883528_1151821300699829970_n.jpg" alt="Moment 3" />
+          <figcaption></figcaption>
+        </figure>
+        <figure>
+          <img src="images/529894865_696489533429106_5511638301008290015_n.jpg" alt="Moment 4" />
+          <figcaption></figcaption>
+        </figure>
+        <figure>
+          <img src="images/530809794_773269151784627_8111133105196474852_n.jpg" alt="Moment 5" />
+          <figcaption></figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- Timeline -->
+    <section id="timeline">
+      <h2 class="sectionTitle">Our little timeline</h2>
+      <div class="card">
+        <div class="timeline" id="timelineWrap">
+            <div class="moment">
+            <h3>Nagkakilala tayo <span class="muted">(May 27, 2025)</span></h3>
+            <p class="muted">Harot mo.</p>
+            </div>
+            <div class="moment">
+            <h3>First date <span class="muted">(June 8, 2025)</span></h3>
+            <p class="muted">Grabe inlove na inlove si boy kay gurrll.</p>
+            </div>
+            <div class="moment">
+            <h3>Sinagot mo ako ❤️ <span class="muted">(June 28, 2025)</span></h3>
+            <p class="muted">Happiest moment of my lifeeeee.</p>
+            </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Love List -->
+    <section id="reasons">
+      <h2 class="sectionTitle">10 tiny reasons I adore you</h2>
+      <p class="sectionLead">(Out of a million.) Add your own list to make it truly yours.</p>
+      <ul class="loveList" id="loveList"></ul>
+    </section>
+
+    <!-- Countdown (optional) -->
+    <section id="countdown">
+      <div class="card">
+        <h2 class="sectionTitle" style="margin-bottom:6px">Counting down to us</h2>
+        <p class="sectionLead">Next special day: <span id="eventName">Anniversary</span> — <span id="eventDate"></span></p>
+        <div class="grid" style="margin-top:10px">
+          <div class="col-3 col-6 card" style="text-align:center">
+            <div style="font-size:40px; font-weight:800" id="cdDays">0</div>
+            <div class="muted">Days</div>
+          </div>
+          <div class="col-3 col-6 card" style="text-align:center">
+            <div style="font-size:40px; font-weight:800" id="cdHours">0</div>
+            <div class="muted">Hours</div>
+          </div>
+          <div class="col-3 col-6 card" style="text-align:center">
+            <div style="font-size:40px; font-weight:800" id="cdMinutes">0</div>
+            <div class="muted">Minutes</div>
+          </div>
+          <div class="col-3 col-6 card" style="text-align:center">
+            <div style="font-size:40px; font-weight:800" id="cdSeconds">0</div>
+            <div class="muted">Seconds</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      Made with 💖 by <span id="yourName">You</span>
+    </footer>
+  </main>
+
+  <!-- Surprise Modal -->
+  <div class="modal" id="surpriseModal" role="dialog" aria-modal="true" aria-labelledby="surpriseTitle">
+    <div class="box">
+      <h3 id="surpriseTitle" class="title" style="font-size:28px">A little love letter</h3>
+      <p id="loveLetter" class="muted">I’m so grateful for you. Thank you for coloring my days, for the laughs we haven’t had yet, and for choosing me in all the small ways. I’m always on your team.</p>
+      <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:10px">
+        <button class="btn btn-ghost" id="closeModal">Close</button>
+        <button class="btn btn-primary" id="shareBtn">Share this page</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Music -->
+    <audio id="bgm" preload="auto" autoplay loop playsinline></audio>
+  <!-- Confetti container -->
+  <div class="confetti" id="confetti"></div>
+
+  <script>
+    // ===== CONFIG: edit these values to personalize =====
+    const CONFIG = {
+    herName: "Lim",
+    tagline: "To my favorite person in the world",
+    lead: "Hi mahal, sorri medyo corny, For you po Mahal ko.",
+    heroImage: "https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=1200&auto=format&fit=crop",
+    yourName: "Justin",
+    loveLetter: "Mahal na mahal kita palagi.",
+    gallery: [
+        { src: "images/526982710_1061974726135682_6828209082612659011_n.jpg", caption: "" },
+        { src: "images/527806679_1297551501817323_4140887724333013788_n.jpg", caption: "" },
+        { src: "images/528751367_1655214335883528_1151821300699829970_n.jpg", caption: "" },
+        { src: "images/529894865_696489533429106_5511638301008290015_n.jpg", caption: "" },
+        { src: "images/530809794_773269151784627_8111133105196474852_n.jpg", caption: "" }
+    ],
+    reasons: [
+        "Ngiti mo",
+        "Kung ka mag tampo",
+        "Yung amoy mo",
+        "Yung yakap mo",
+        "Yung mata mo",
+        "Yung mindset mo",
+        "Yung tawa mo",
+        "Kung paano mo ako i-treat",
+        "Kung paano mo ako suportahan",
+        "Kung paano mo ako mahalin"
+    ],
+    event:{ name:"Anniversary", date:"2025-06-28T00:00:00" },
+    music:{ src:"yung kai - blue (official music video).mp3", title:"Our Song" },
+    };
+    // ================================================
+
+    
+    // Fill text content
+    document.getElementById('herName').textContent = CONFIG.herName;
+    document.getElementById('tagline').textContent = CONFIG.tagline;
+    document.getElementById('leadText').textContent = CONFIG.lead;
+    document.getElementById('heroImg').src = "images/mahal.jpg";
+    document.getElementById('yourName').textContent = CONFIG.yourName;
+    document.getElementById('loveLetter').textContent = CONFIG.loveLetter;
+
+    // Build gallery
+    const grid = document.getElementById('galleryGrid');
+    grid.innerHTML = '';
+    CONFIG.gallery.forEach(item=>{
+      const fig = document.createElement('figure');
+      const img = document.createElement('img'); img.loading = 'lazy'; img.src = item.src; img.alt = item.caption || 'Photo';
+      const cap = document.createElement('figcaption'); cap.textContent = item.caption || '';
+      fig.appendChild(img); fig.appendChild(cap); grid.appendChild(fig);
+    });
+
+    // Build love list
+    const ul = document.getElementById('loveList');
+    CONFIG.reasons.forEach((r,i)=>{
+      const li = document.createElement('li'); li.textContent = `${i+1}. ${r}`; ul.appendChild(li);
+    });
+    // Hearts background
+    const hearts = document.querySelector('.hearts');
+    for(let i=0;i<38;i++){
+      const span=document.createElement('span');
+      span.style.setProperty('--x', Math.random()*100 + '%');
+      span.style.setProperty('--t', 7 + Math.random()*6 + 's');
+      span.style.opacity = 0.18 + Math.random()*0.35;
+      span.style.filter = 'blur('+(Math.random()*1.2)+'px)';
+      hearts.appendChild(span);
+    }
+
+    // Surprise modal + confetti
+    const modal = document.getElementById('surpriseModal');
+    document.getElementById('btnSurprise').addEventListener('click', ()=>{
+      modal.classList.add('open');
+      confettiBurst();
+      // gently vibrate on mobile
+      if(navigator.vibrate) navigator.vibrate(40);
+    });
+    document.getElementById('closeModal').addEventListener('click', ()=> modal.classList.remove('open'));
+
+    // Web Share API
+    document.getElementById('shareBtn').addEventListener('click', async()=>{
+      try{
+        if(navigator.share){ await navigator.share({ title: document.title, text: CONFIG.loveLetter, url: location.href }); }
+        else{ alert('Copy this link to share: '+location.href); }
+      }catch(e){ console.log(e); }
+    });
+
+const audio = document.getElementById('bgm');
+audio.src = CONFIG.music.src;
+audio.volume = 0.8;
+const btnMusic = document.getElementById('btnMusic');
+let playing = false;
+
+// Try autoplay on page load
+window.addEventListener('load', async () => {
+  try {
+    await audio.play();
+    playing = true;
+    btnMusic.textContent = 'Pause music ♪';
+  } catch (e) {
+    console.log('Autoplay blocked by browser — user must click to start music.');
+  }
+});
+
+// Toggle play/pause on button click
+btnMusic.addEventListener('click', async () => {
+  try {
+    if (!playing) {
+      await audio.play();
+      playing = true;
+      btnMusic.textContent = 'Pause music ♪';
+    } else {
+      audio.pause();
+      playing = false;
+      btnMusic.textContent = 'Play music ♪';
+    }
+  } catch (e) {
+    alert('Add an MP3 named ' + CONFIG.music.src + ' next to this file to enable music.');
+  }
+});
+
+    // Simple confetti
+    function confettiBurst(){
+      const box = document.getElementById('confetti');
+      for(let i=0;i<140;i++){
+        const p = document.createElement('i');
+        const size = 6 + Math.random()*10;
+        p.style.width = size+'px'; p.style.height = (size*1.4)+'px';
+        p.style.left = Math.random()*100 + 'vw';
+        p.style.background = `hsl(${Math.random()*360}, 90%, 60%)`;
+        p.style.top = '-5vh';
+        p.style.transform = `rotate(${Math.random()*360}deg)`;
+        p.style.animationDuration = (900 + Math.random()*1200) + 'ms';
+        p.style.opacity = .9;
+        box.appendChild(p);
+        setTimeout(()=> p.remove(), 1800);
+      }
+    }
+
+      const eventName = document.getElementById('eventName');
+  const eventDate = document.getElementById('eventDate');
+  eventName.textContent = CONFIG.event.name;
+
+  // Use only month/day/time from CONFIG.event.date; ignore the year for recurrence
+  const base = new Date(CONFIG.event.date); // e.g. "2025-06-28T00:00:00"
+
+  function getNextOccurrence() {
+    const now = new Date();
+    // Build the date for the current year at the same month/day/time
+    const next = new Date(
+      now.getFullYear(),
+      base.getMonth(),   // June = 5
+      base.getDate(),    // 28
+      base.getHours(),
+      base.getMinutes(),
+      base.getSeconds()
+    );
+    // If it's already passed today, move to next year
+    if (next <= now) next.setFullYear(next.getFullYear() + 1);
+    return next;
+  }
+
+  let targetDate = getNextOccurrence();
+  eventDate.textContent = targetDate.toLocaleString(undefined, { dateStyle: 'long', timeStyle: 'short' });
+
+  function updateCountdown() {
+    const now = new Date();
+    // If we crossed the target, roll forward and refresh the label
+    if (now >= targetDate) {
+      targetDate = getNextOccurrence();
+      eventDate.textContent = targetDate.toLocaleString(undefined, { dateStyle: 'long', timeStyle: 'short' });
+    }
+
+    const diffSec = Math.max(0, Math.floor((targetDate - now) / 1000));
+    const d  = Math.floor(diffSec / 86400);
+    const h  = Math.floor((diffSec % 86400) / 3600);
+    const m  = Math.floor((diffSec % 3600) / 60);
+    const ss = diffSec % 60;
+
+    document.getElementById('cdDays').textContent    = d;
+    document.getElementById('cdHours').textContent   = h;
+    document.getElementById('cdMinutes').textContent = m;
+    document.getElementById('cdSeconds').textContent = ss;
+  }
+
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+  </script>
+</body>
+</html>
