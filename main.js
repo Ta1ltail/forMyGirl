@@ -170,4 +170,18 @@ document.getElementById('cdSeconds').textContent = ss;
 }
 
 updateCountdown();
+
 setInterval(updateCountdown, 1000);
+
+document.addEventListener('DOMContentLoaded', () => {
+    function startMusic() {
+        audio.play().then(() => {
+            playing = true;
+            btnMusic.textContent = 'Pause music ♪';
+        }).catch(err => {
+            console.log('Autoplay blocked:', err);
+        });
+        document.removeEventListener('click', startMusic);
+    }
+    document.addEventListener('click', startMusic);
+});
